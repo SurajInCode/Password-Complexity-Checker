@@ -16,7 +16,7 @@
 - **Generate passwords** — Creates a 16-character password using Python's `secrets` module (letters, digits, and punctuation).
 - **Copy to clipboard** — Copies the current password via `pyperclip` (requires a clipboard backend on Linux).
 - **Show / hide password** — Toggle visibility in the entry field.
-- **Progress bar** — Visual indicator colored by a character-type score.
+- **Progress bar** — Visual indicator aligned with the same strength level as the written feedback.
 
 ## Requirements
 
@@ -42,7 +42,7 @@
 3. Install dependencies:
 
    ```bash
-   pip install pyperclip
+   pip install -r requirements.txt
    ```
 
    On Linux, if copy fails, install a clipboard helper (for example `xclip` or `xsel` on X11).
@@ -63,21 +63,24 @@ python main.py
 
 ```
 Password-Complexity-Checker/
-├── main.py              # Application logic and Tkinter GUI
+├── checker.py           # Strength evaluation and password generation
+├── main.py              # Tkinter GUI
+├── requirements.txt
 ├── files/
-│   ├── pic.ico          # App icon asset
+│   ├── pic.ico          # Window icon
 │   └── screenshot.png   # README screenshot
 └── README.md
 ```
 
 ## How strength is estimated
 
-The app reports:
+The app uses a single **strength level** (0–5) for both the progress bar and remarks:
 
-- A **character-type score** (used for the progress bar): points for lowercase, uppercase, digits, spaces, symbols, and extra credit for length ≥ 12.
-- **Estimated entropy** (bits): `length × log₂(charset_size)`, where `charset_size` is the sum of sizes of character classes present in the password.
+- **Estimated entropy** (bits): the smaller of charset-based guessing entropy and distribution-based entropy (repeated characters lower the score).
+- **Penalties** for very common passwords, simple sequences (e.g. `123`, `abc`), and spaces.
+- **Level thresholds** on entropy: &lt;28 very weak, &lt;35 weak, &lt;50 fair, &lt;60 good, otherwise excellent.
 
-Remarks (Very Weak → Excellent) are based on entropy thresholds. This is a simplified heuristic, not a full password-cracking model. For production systems, consider dedicated libraries (for example [zxcvbn](https://github.com/dropbox/zxcvbn)) or breach checks.
+This is a simplified heuristic, not a full password-cracking model. For production systems, consider dedicated libraries (for example [zxcvbn](https://github.com/dropbox/zxcvbn)) or breach checks.
 
 ## Screenshots
 
